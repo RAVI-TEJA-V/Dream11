@@ -15,7 +15,7 @@ interface Winner {
   earnings: number;
 }
 
-const PASSKEY = 'Bits@123';
+// const PASSKEY = 'Bits@123';
 
 const AddMatchForm: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +51,7 @@ const AddMatchForm: React.FC = () => {
   };
 
   const verifyAndSubmit = async () => {
-    if (passkey !== PASSKEY) {
+    if (passkey !== import.meta.env.VITE_PASSKEY) {
       setPasskeyError('Invalid passkey');
       toast.error('Invalid passkey! Please try again.', {
         style: {
