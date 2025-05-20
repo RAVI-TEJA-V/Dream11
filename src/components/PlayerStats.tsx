@@ -1,16 +1,64 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, Target, TrendingDown, Coins } from 'lucide-react';
-import { getPlayerStats } from '../data/playerData';
+import { Coins, Target, TrendingDown, Trophy } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useDashboard } from '../context/DashboardContext';
+import { playerApi } from '../services/api';
+
+interface Player {
+  _id: string;
+  name: string;
+  totalEarnings: number;
+  matchesPlayed: number;
+  wins: number;
+  topThreeFinishes: number;
+  lastPlaceFinishes: number;
+  averageEarning: number;
+}
 
 const PlayerStats: React.FC = () => {
-  const playerStats = getPlayerStats();
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { refreshTrigger } = useDashboard();
+
+  useEffect(() => {
+    const fetchPlayers = async () => {
+      try {
+        const response = await playerApi.getAll();
+        setPlayers(response.data);
+        setError(null);
+      } catch (error) {
+        console.error('Error fetching players:', error);
+        setError('Failed to fetch players');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlayers();
+  }, [refreshTrigger]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#E64833]"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-500 p-4">
+        {error}
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
-      {playerStats.map((player, index) => (
+      {players.map((player, index) => (
         <motion.div
-          key={player.name}
+          key={player._id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1 }}
@@ -22,7 +70,7 @@ const PlayerStats: React.FC = () => {
           </h3>
           
           <div className="space-y-3 md:space-y-4">
-            <motion.div 
+            <motion.div
               className="flex items-center justify-between"
               whileHover={{ x: 5 }}
             >
@@ -33,18 +81,18 @@ const PlayerStats: React.FC = () => {
               <span className="font-semibold text-[#E64833]">{player.wins}</span>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               className="flex items-center justify-between"
               whileHover={{ x: 5 }}
             >
               <div className="flex items-center text-[#FBE9D0]">
                 <Target size={16} className="mr-2" />
-                <span className="text-xs md:text-sm text-[#FBE9D0]">Top 4 Finishes</span>
+                <span className="text-xs md:text-sm text-[#FBE9D0]">Top 3 Finishes</span>
               </div>
               <span className="font-semibold text-[#FBE9D0]">{player.topThreeFinishes}</span>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               className="flex items-center justify-between"
               whileHover={{ x: 5 }}
             >
@@ -55,7 +103,7 @@ const PlayerStats: React.FC = () => {
               <span className="font-semibold text-[#E64833]">{player.lastPlaceFinishes}</span>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               className="flex items-center justify-between"
               whileHover={{ x: 5 }}
             >
@@ -64,7 +112,7 @@ const PlayerStats: React.FC = () => {
                 <span className="text-xs md:text-sm text-[#FBE9D0]">Avg. Earnings</span>
               </div>
               <span className={`font-semibold ${player.averageEarning >= 0 ? 'text-[#E64833]' : 'text-[#874F41]'}`}>
-                ₹{player.averageEarning}
+                ₹{player.averageEarning.toFixed(2)}
               </span>
             </motion.div>
           </div>
