@@ -1,0 +1,153 @@
+{
+	"info": {
+		"_postman_id": "ef9166c4-8d30-4b62-a9e1-8b43c49e7694",
+		"name": "11",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28151014"
+	},
+	"item": [
+		{
+			"name": "Bulk Submit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"matches\": [\n        {\n      \"matchName\": \"RR vs KKR\",\n      \"winners\": [\n        {\"playerId\": \"682e2c192eb818f9251c0602\", \"earnings\": 60},\n        {\"playerId\": \"682e2c192eb818f9251c0603\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c0604\", \"earnings\": 40},\n        {\"playerId\": \"682e2c192eb818f9251c0605\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c0606\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c0607\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c0608\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c0609\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c060a\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c060b\", \"earnings\": -20}\n      ]\n    },\n    {\n      \"matchName\": \"SRH vs LSG\",\n      \"winners\": [\n        {\"playerId\": \"682e2c192eb818f9251c0602\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c0603\", \"earnings\": 60},\n        {\"playerId\": \"682e2c192eb818f9251c0604\", \"earnings\": 20},\n        {\"playerId\": \"682e2c192eb818f9251c0605\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c0606\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c0607\", \"earnings\": 0},\n        {\"playerId\": \"682e2c192eb818f9251c0608\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c0609\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c060a\", \"earnings\": -20},\n        {\"playerId\": \"682e2c192eb818f9251c060b\", \"earnings\": -20}\n      ]\n    }\n  ]\n} ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5132/api/matches/bulk",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5132",
+					"path": [
+						"api",
+						"matches",
+						"bulk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Players",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5132/api/players",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5132",
+					"path": [
+						"api",
+						"players"
+					],
+					"query": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Players Bulk addition",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"players\": [\n    \"Shubham\",\n    \"Bharath\",\n    \"Ravi Teja N\",\n    \"Sumanth\",\n    \"Shashi\",\n    \"Praneeth\",\n    \"Raghu\",\n    \"Bhuvan\",\n    \"Phani\",\n    \"Kedar\"\n  ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5132/api/players/bulk",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5132",
+					"path": [
+						"api",
+						"players",
+						"bulk"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5132/api/matches/reset",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5132",
+					"path": [
+						"api",
+						"matches",
+						"reset"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

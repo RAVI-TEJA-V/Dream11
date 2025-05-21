@@ -228,4 +228,50 @@ router.delete('/reset', async (req, res) => {
   }
 });
 
+// Delete match by name and update player stats
+router.delete('/name/:matchName', async (req, res) => {
+    try {
+        const { matchName } = req.params;
+        
+        // Find the match
+        const match = await Match.findOne({ matchName: matchName });
+        if (!match) {
+            return res.status(404).json({ message: 'Match not found' });
+        }
+
+        // Update player stats for each winner
+        for (const winner of match.winners) {
+            const player = await Player.findById(winner.playerId._id);
+            if (player) {
+                // Remove the match from player's match history
+                player.matchHistory = player.matchHistory.filter(
+                    m => m.matchId.toString() !== match._id.toString()
+                );
+
+                // Recalculate player stats
+                player.wins = player.matchHistory.filter(m => m.position === 1).length;
+                player.topThreeFinishes = player.matchHistory.filter(m => m.position === 2 || m.position === 3).length;
+                player.lastPlaceFinishes = player.matchHistory.filter(m => m.position === -1).length;
+                
+                // Recalculate total earnings and average
+                const totalEarnings = player.matchHistory.reduce((sum, m) => sum + m.earnings, 0);
+                player.totalEarnings = totalEarnings;
+                player.averageEarning = player.matchHistory.length > 0 
+                    ? totalEarnings / player.matchHistory.length 
+                    : 0;
+
+                await player.save();
+            }
+        }
+
+        // Delete the match
+        await Match.deleteOne({ _id: match._id });
+
+        res.json({ message: 'Match deleted successfully and player stats updated' });
+    } catch (error) {
+        console.error('Error deleting match:', error);
+        res.status(500).json({ message: 'Error deleting match', error: error.message });
+    }
+});
+
 module.exports = router; 
