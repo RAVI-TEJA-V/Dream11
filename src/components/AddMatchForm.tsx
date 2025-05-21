@@ -20,6 +20,7 @@ interface Winner {
 const AddMatchForm: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [winners, setWinners] = useState<Winner[]>([]);
+  const [matchName, setMatchName] = useState('');
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,11 +67,12 @@ const AddMatchForm: React.FC = () => {
       });
       return;
     }
-
+    
     setLoading(true);
     try {
-      await matchApi.create(winners);
+      await matchApi.create(winners, matchName);
       setWinners([]);
+      setMatchName('');
       setIsOpen(false);
       setShowPasskeyModal(false);
       setPasskey('');
@@ -137,7 +139,7 @@ const AddMatchForm: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-8 right-8">
+    <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50">
       <Toaster
         position="top-right"
         toastOptions={{
@@ -162,11 +164,11 @@ const AddMatchForm: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-[#244855]/95 backdrop-blur-lg p-6 rounded-xl shadow-xl border border-[#FBE9D0]/20 w-96"
+          className="bg-[#244855]/95 backdrop-blur-lg p-4 sm:p-6 rounded-xl shadow-xl border border-[#FBE9D0]/20 w-[calc(100vw-2rem)] sm:w-96 max-w-[96vw] sm:max-w-none mx-auto"
         >
-          <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-[#FBE9D0] flex items-center">
-              <Trophy className="mr-2" size={24} />
+          <div className="flex justify-between items-center mb-4 sm:mb-6">
+            <h3 className="text-lg sm:text-xl font-bold text-[#FBE9D0] flex items-center">
+              <Trophy className="mr-2" size={20} />
               Add Match Results
             </h3>
             <button
@@ -177,19 +179,27 @@ const AddMatchForm: React.FC = () => {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="max-h-[400px] overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+            <input
+              type="text"
+              value={matchName}
+              onChange={(e) => setMatchName(e.target.value)}
+              placeholder="Match Name (e.g., GT vs CSK)"
+              className="w-full bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-3 py-2 text-sm sm:text-base text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
+            />
+
+            <div className="max-h-[60vh] sm:max-h-[400px] overflow-y-auto pr-2 space-y-2 sm:space-y-3 custom-scrollbar">
               {winners.map((winner, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex space-x-2 bg-[#244855]/50 p-2 rounded-lg border border-[#FBE9D0]/10"
+                  className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 bg-[#244855]/50 p-2 rounded-lg border border-[#FBE9D0]/10"
                 >
                   <select
                     value={winner.playerId}
                     onChange={(e) => updateWinner(index, 'playerId', e.target.value)}
-                    className="flex-1 bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-3 py-2 text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
+                    className="flex-1 bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-2 sm:px-3 py-2 text-sm sm:text-base text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
                   >
                     {players.map((player) => (
                       <option 
@@ -201,20 +211,22 @@ const AddMatchForm: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  <input
-                    type="number"
-                    value={winner.earnings}
-                    onChange={(e) => updateWinner(index, 'earnings', parseInt(e.target.value))}
-                    placeholder="Earnings"
-                    className="w-24 bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-3 py-2 text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeWinner(index)}
-                    className="text-[#E64833] hover:text-[#E64833]/80 transition-colors"
-                  >
-                    <X size={20} />
-                  </button>
+                  <div className="flex space-x-2">
+                    <input
+                      type="number"
+                      value={winner.earnings}
+                      onChange={(e) => updateWinner(index, 'earnings', parseInt(e.target.value))}
+                      placeholder="Earnings"
+                      className="flex-1 sm:w-24 bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-2 sm:px-3 py-2 text-sm sm:text-base text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeWinner(index)}
+                      className="text-[#E64833] hover:text-[#E64833]/80 transition-colors p-2"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -225,9 +237,9 @@ const AddMatchForm: React.FC = () => {
                 onClick={addAllPlayers}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex-1 bg-[#244855] hover:bg-[#244855]/80 text-[#FBE9D0] px-4 py-2 rounded-lg flex items-center justify-center space-x-2 border border-[#FBE9D0]/20 transition-colors"
+                className="flex-1 bg-[#244855] hover:bg-[#244855]/80 text-[#FBE9D0] px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center space-x-2 border border-[#FBE9D0]/20 transition-colors text-sm sm:text-base"
               >
-                <Plus size={20} />
+                <Plus size={18} />
                 <span>Add All Players</span>
               </motion.button>
             </div>
@@ -236,7 +248,7 @@ const AddMatchForm: React.FC = () => {
               type="submit"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="w-full bg-gradient-to-r from-[#E64833] to-[#874F41] text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300"
+              className="w-full bg-gradient-to-r from-[#E64833] to-[#874F41] text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 text-sm sm:text-base"
             >
               Save Match Results
             </motion.button>
@@ -247,16 +259,16 @@ const AddMatchForm: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
             >
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="bg-[#244855] p-6 rounded-xl shadow-xl border border-[#FBE9D0]/20 w-96"
+                className="bg-[#244855] p-4 sm:p-6 rounded-xl shadow-xl border border-[#FBE9D0]/20 w-full sm:w-96 max-w-[96vw] sm:max-w-none"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-[#FBE9D0] flex items-center">
-                    <Lock className="mr-2" size={24} />
+                  <h3 className="text-lg sm:text-xl font-bold text-[#FBE9D0] flex items-center">
+                    <Lock className="mr-2" size={20} />
                     Enter Passkey
                   </h3>
                   <button
@@ -280,7 +292,7 @@ const AddMatchForm: React.FC = () => {
                       setPasskeyError(null);
                     }}
                     placeholder="Enter passkey"
-                    className="w-full bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-3 py-2 text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
+                    className="w-full bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-3 py-2 text-sm sm:text-base text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
                   />
                   {passkeyError && (
                     <p className="text-[#E64833] text-sm">{passkeyError}</p>
@@ -294,7 +306,7 @@ const AddMatchForm: React.FC = () => {
                       }}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-1 bg-[#244855] hover:bg-[#244855]/80 text-[#FBE9D0] px-4 py-2 rounded-lg border border-[#FBE9D0]/20 transition-colors"
+                      className="flex-1 bg-[#244855] hover:bg-[#244855]/80 text-[#FBE9D0] px-4 py-2 rounded-lg border border-[#FBE9D0]/20 transition-colors text-sm sm:text-base"
                     >
                       Cancel
                     </motion.button>
@@ -302,7 +314,7 @@ const AddMatchForm: React.FC = () => {
                       onClick={verifyAndSubmit}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="flex-1 bg-gradient-to-r from-[#E64833] to-[#874F41] text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300"
+                      className="flex-1 bg-gradient-to-r from-[#E64833] to-[#874F41] text-white px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 text-sm sm:text-base"
                     >
                       Verify & Save
                     </motion.button>

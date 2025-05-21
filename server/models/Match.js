@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const matchSchema = new mongoose.Schema({
+  matchName: {
+    type: String,
+    required: true
+  },
   winners: [{
     playerId: {
       type: mongoose.Schema.Types.ObjectId,

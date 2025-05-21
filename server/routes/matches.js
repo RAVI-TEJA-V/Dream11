@@ -21,10 +21,11 @@ router.post('/', async (req, res) => {
   session.startTransaction();
 
   try {
-    const { winners } = req.body;
+    const { winners, matchName } = req.body;
     
     // Create new match
     const match = new Match({
+      matchName: matchName || `Match ${(await Match.countDocuments()) + 1}`,
       winners: winners.map(winner => ({
         playerId: winner.playerId,
         earnings: winner.earnings
@@ -74,6 +75,154 @@ router.post('/', async (req, res) => {
   } catch (err) {
     await session.abortTransaction();
     res.status(400).json({ message: err.message });
+  } finally {
+    session.endSession();
+  }
+});
+
+// Add multiple matches
+router.post('/bulk', async (req, res) => {
+  const session = await Match.startSession();
+  session.startTransaction();
+
+  try {
+    const { matches } = req.body;
+    const results = [];
+    const baseMatchNumber = await Match.countDocuments();
+
+    // First, validate all matches data
+    if (!Array.isArray(matches)) {
+      throw new Error('Matches must be an array');
+    }
+
+    // Create a map to batch player updates
+    const playerUpdates = new Map();
+
+    for (const [index, matchData] of matches.entries()) {
+      const { winners, matchName } = matchData;
+
+      if (!Array.isArray(winners)) {
+        throw new Error(`Invalid winners array in match ${index + 1}`);
+      }
+
+      // Create new match
+      const match = new Match({
+        matchName: matchName || `Match ${baseMatchNumber + index + 1}`,
+        winners: winners.map(winner => ({
+          playerId: winner.playerId,
+          earnings: Number(winner.earnings) // Ensure earnings is a number
+        })),
+        matchNumber: baseMatchNumber + index + 1
+      });
+
+      await match.save({ session });
+      results.push(match);
+
+      // Collect player updates
+      for (const winner of winners) {
+        const playerId = winner.playerId;
+        const earnings = Number(winner.earnings);
+
+        if (!playerUpdates.has(playerId)) {
+          playerUpdates.set(playerId, {
+            totalEarningsChange: 0,
+            winsChange: 0,
+            topThreeFinishesChange: 0,
+            lastPlaceFinishesChange: 0,
+            matchHistoryAdditions: []
+          });
+        }
+
+        const playerUpdate = playerUpdates.get(playerId);
+        playerUpdate.totalEarningsChange += earnings;
+        
+        // Update wins (if earnings > 0)
+        if (earnings >= 50) {
+          playerUpdate.winsChange += 1;
+        }
+
+        // Update top 3 finishes (if earnings > 0)
+        if (earnings > 0) {
+          playerUpdate.topThreeFinishesChange += 1;
+        }
+
+        // Update last place finishes (if earnings < -20)
+        if (earnings < -20) {
+          playerUpdate.lastPlaceFinishesChange += 1;
+        }
+
+        playerUpdate.matchHistoryAdditions.push({
+          matchId: match._id,
+          earnings: earnings,
+          position: earnings > 0 ? 1 : (earnings < -20 ? -1 : 0)
+        });
+      }
+    }
+
+    // Apply all player updates in batch
+    for (const [playerId, updates] of playerUpdates) {
+      const player = await Player.findById(playerId).session(session);
+      if (!player) {
+        throw new Error(`Player not found with ID: ${playerId}`);
+      }
+
+      player.totalEarnings += updates.totalEarningsChange;
+      player.wins += updates.winsChange;
+      player.topThreeFinishes += updates.topThreeFinishesChange;
+      player.lastPlaceFinishes += updates.lastPlaceFinishesChange;
+      player.matchHistory.push(...updates.matchHistoryAdditions);
+
+      // Recalculate average earnings
+      const totalMatches = player.matchHistory.length;
+      player.averageEarning = player.totalEarnings / totalMatches;
+
+      await player.save({ session });
+    }
+
+    await session.commitTransaction();
+    res.status(201).json({
+      message: 'Bulk update successful',
+      matchesCreated: results.length,
+      playersUpdated: playerUpdates.size,
+      matches: results
+    });
+  } catch (err) {
+    await session.abortTransaction();
+    res.status(400).json({ 
+      message: 'Bulk update failed',
+      error: err.message 
+    });
+  } finally {
+    session.endSession();
+  }
+});
+
+// Reset all matches and player stats
+router.delete('/reset', async (req, res) => {
+  const session = await Match.startSession();
+  session.startTransaction();
+
+  try {
+    // Delete all matches
+    await Match.deleteMany({}, { session });
+
+    // Reset all player stats
+    const players = await Player.find();
+    for (const player of players) {
+      player.totalEarnings = 0;
+      player.wins = 0;
+      player.topThreeFinishes = 0;
+      player.lastPlaceFinishes = 0;
+      player.averageEarning = 0;
+      player.matchHistory = [];
+      await player.save({ session });
+    }
+
+    await session.commitTransaction();
+    res.json({ message: 'All matches and player stats have been reset successfully' });
+  } catch (err) {
+    await session.abortTransaction();
+    res.status(500).json({ message: err.message });
   } finally {
     session.endSession();
   }
