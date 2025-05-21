@@ -15,12 +15,13 @@ export const playerApi = {
   getStats: () => api.get('/players/stats'),
   getTopThree: () => api.get('/players/top-three'),
   create: (name: string) => api.post('/players', { name }),
+  createBulk: (players: string[]) => api.post('/players/bulk', { players }),
 };
 
 export const matchApi = {
   getAll: () => api.get('/matches'),
-  create: (winners: { playerId: string; earnings: number }[]) => 
-    api.post('/matches', { winners }),
+  create: (winners: { playerId: string; earnings: number }[], matchName?: string) => 
+    api.post('/matches', { winners, matchName }),
 };
 
 export default api; 

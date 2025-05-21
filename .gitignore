@@ -1,4 +1,6 @@
 node_modules
 dist
+allMatchesPayload.json
+playerIds.ts
 .env
 server/dist
