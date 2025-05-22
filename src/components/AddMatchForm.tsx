@@ -52,7 +52,7 @@ const AddMatchForm: React.FC = () => {
   };
 
   const verifyAndSubmit = async () => {
-    //if (passkey !== import.meta.env.VITE_PASSKEY) {
+    if (passkey !== import.meta.env.VITE_PASSKEY) {
       setPasskeyError('Invalid passkey');
       toast.error('Invalid passkey! Please try again.', {
         style: {
@@ -62,11 +62,11 @@ const AddMatchForm: React.FC = () => {
         },
         iconTheme: {
           primary: '#E64833',
-          secondary: '#FBE9D0',
+          secondary: '#FBE9D0', 
         },
       });
       return;
-    //}
+    }
     
     setLoading(true);
     try {
