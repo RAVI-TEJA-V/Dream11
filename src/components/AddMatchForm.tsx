@@ -194,12 +194,12 @@ const AddMatchForm: React.FC = () => {
                   key={index}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 bg-[#244855]/50 p-2 rounded-lg border border-[#FBE9D0]/10"
+                  className="flex flex-row space-x-2 bg-[#244855]/50 p-2 rounded-lg border border-[#FBE9D0]/10"
                 >
                   <select
                     value={winner.playerId}
                     onChange={(e) => updateWinner(index, 'playerId', e.target.value)}
-                    className="flex-1 bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-2 sm:px-3 py-2 text-sm sm:text-base text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
+                    className="flex-1 min-w-0 bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-2 sm:px-3 py-2 text-sm sm:text-base text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
                   >
                     {players.map((player) => (
                       <option 
@@ -217,7 +217,7 @@ const AddMatchForm: React.FC = () => {
                       value={winner.earnings}
                       onChange={(e) => updateWinner(index, 'earnings', parseInt(e.target.value))}
                       placeholder="Earnings"
-                      className="flex-1 sm:w-24 bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-2 sm:px-3 py-2 text-sm sm:text-base text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
+                      className="w-24 bg-[#244855] border border-[#FBE9D0]/20 rounded-lg px-2 sm:px-3 py-2 text-sm sm:text-base text-[#FBE9D0] placeholder-[#FBE9D0]/50 focus:outline-none focus:border-[#E64833]"
                     />
                     <button
                       type="button"
